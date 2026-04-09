@@ -1,0 +1,40 @@
+.gauge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 160px;
+  height: 160px;
+}
+
+.gauge__svg {
+  position: absolute;
+  top: 0; left: 0;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.08));
+}
+
+.gauge__center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  z-index: 1;
+}
+
+.gauge__score {
+  font-family: var(--font-serif);
+  font-size: 2.4rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.gauge__pct {
+  font-size: 1.1rem;
+}
+
+.gauge__risk {
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  padding: 2px 6px;
+  border-radius: 2px;
+}
