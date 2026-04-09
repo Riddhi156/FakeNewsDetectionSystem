@@ -1,0 +1,4 @@
+/* Mobile nav collapse */
+@media (max-width: 680px) {
+  .nav__links { display: none; }
+}
