@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FakeShield – AI Fake News Verifier</title>
+  <meta name="description" content="Verify whether a news article is Real, Suspicious, or Fake using AI semantic similarity against trusted Indian news sources." />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <!-- ── Background Orbs ─────────────────────────────────────────────────── -->
+  <div class="bg-orb orb-1" aria-hidden="true"></div>
+  <div class="bg-orb orb-2" aria-hidden="true"></div>
+  <div class="bg-orb orb-3" aria-hidden="true"></div>
+
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <header class="header">
+    <div class="logo">
+      <span class="logo-icon">🛡️</span>
+      <span class="logo-text">FakeShield</span>
+      <span class="logo-tag">AI</span>
+    </div>
+    <p class="header-sub">Real-time news verification · Powered by Sentence Transformers</p>
+  </header>
+
+  <!-- ── Main ───────────────────────────────────────────────────────────── -->
+  <main class="main">
+
+    <!-- ── Hero Card ──────────────────────────────────────────────────── -->
+    <section class="hero-card glass-card" aria-label="News input">
+      <div class="hero-badge">No Training Data · No Labels · Pure AI</div>
+      <h1 class="hero-title">Is This News <span class="gradient-text">Real or Fake?</span></h1>
+      <p class="hero-desc">
+        Paste any news headline or article below. Our AI will compare it
+        against trusted sources using semantic similarity.
+      </p>
+
+      <div class="input-wrapper">
+        <textarea
+          id="newsInput"
+          class="news-textarea"
+          placeholder="Paste your news article or headline here…&#10;&#10;Example: India's GDP grows at 7.2% in Q3 2024..."
+          rows="5"
+          maxlength="1000"
+          aria-label="News text input"
+        ></textarea>
+        <div class="char-counter"><span id="charCount">0</span> / 1000</div>
+      </div>
+
+      <button id="verifyBtn" class="verify-btn" onclick="verifyNews()" aria-label="Verify news">
+        <span class="btn-icon">🔍</span>
+        <span class="btn-text">Verify News</span>
+      </button>
+
+      <!-- Trusted sources chips -->
+      <div class="sources-row" aria-label="Trusted sources">
+        <span class="source-chip toi">Times of India <span class="chip-rel">0.9</span></span>
+        <span class="source-chip ht">Hindustan Times <span class="chip-rel">0.85</span></span>
+        <span class="source-chip trib">The Tribune <span class="chip-rel">0.8</span></span>
+        <span class="source-chip live">🔴 Live News <span class="chip-rel">Real-time</span></span>
+      </div>
+
+      <!-- Live data status bar -->
+      <div id="dataStatusBar" class="data-status-bar">
+        <span class="status-dot"></span>
+        <span id="dataStatusText">Connecting to live news sources...</span>
+      </div>
+    </section>
+
+    <!-- ── Loading Spinner ─────────────────────────────────────────────── -->
+    <div id="loadingSection" class="loading-section hidden" aria-live="polite" aria-label="Analyzing news">
+      <div class="spinner-ring">
+        <div class="ring r1"></div>
+        <div class="ring r2"></div>
+        <div class="ring r3"></div>
+        <span class="spinner-icon">🛡️</span>
+      </div>
+      <p class="loading-text">Analyzing news against trusted sources…</p>
+      <div class="loading-steps">
+        <span id="step1" class="step active">⚙️ Encoding text</span>
+        <span id="step2" class="step">📡 Comparing articles</span>
+        <span id="step3" class="step">🧠 Computing verdict</span>
+      </div>
+    </div>
+
+    <!-- ── Result Section ──────────────────────────────────────────────── -->
+    <section id="resultSection" class="result-section hidden" aria-live="polite">
+
+      <!-- Verdict Card -->
+      <div id="verdictCard" class="verdict-card glass-card">
+        <div class="verdict-header">
+          <div class="verdict-icon-wrap">
+            <span id="verdictIcon" class="verdict-icon">✅</span>
+          </div>
+          <div class="verdict-text-block">
+            <p class="verdict-label">VERDICT</p>
+            <h2 id="verdictText" class="verdict-result">Real</h2>
+          </div>
+        </div>
+
+        <!-- Meters Row -->
+        <div class="meters-row">
+          <!-- Confidence Meter -->
+          <div class="meter-block">
+            <div class="meter-label">Confidence Score</div>
+            <div class="meter-bar-bg">
+              <div id="confidenceBar" class="meter-bar-fill confidence-fill" style="width:0%"></div>
+            </div>
+            <div id="confidenceValue" class="meter-value">0%</div>
+          </div>
+
+          <!-- Similarity Meter -->
+          <div class="meter-block">
+            <div class="meter-label">Similarity Score</div>
+            <div class="meter-bar-bg">
+              <div id="similarityBar" class="meter-bar-fill similarity-fill" style="width:0%"></div>
+            </div>
+            <div id="similarityValue" class="meter-value">0%</div>
+          </div>
+        </div>
+
+        <p id="verdictMessage" class="verdict-message"></p>
+
+        <!-- Data Sources Info -->
+        <div id="dataSourcesInfo" class="data-sources-info hidden">
+          <span class="ds-label">📊 Compared against:</span>
+          <span id="dsCsvCount" class="ds-chip">0 CSV</span>
+          <span id="dsRealtimeCount" class="ds-chip live">0 Live</span>
+          <span id="dsTotalCount" class="ds-chip total">0 Total</span>
+        </div>
+      </div>
+
+      <!-- Matched Articles -->
+      <div class="articles-section">
+        <h3 class="articles-heading">
+          <span class="heading-icon">📰</span> Top Matched Articles
+        </h3>
+        <div id="articlesList" class="articles-grid" role="list"></div>
+      </div>
+
+      <!-- No results state -->
+      <div id="noResults" class="no-results hidden">
+        <span class="no-results-icon">🔎</span>
+        <p>No similar articles found in our trusted database.</p>
+        <p class="no-results-sub">This news could not be verified — treat with caution.</p>
+      </div>
+
+      <!-- Try Again -->
+      <button class="try-again-btn" onclick="resetForm()" aria-label="Verify another news">
+        ↩ Verify Another
+      </button>
+    </section>
+
+    <!-- ── Error Banner ────────────────────────────────────────────────── -->
+    <div id="errorBanner" class="error-banner hidden" role="alert"></div>
+
+    <!-- ── How It Works ────────────────────────────────────────────────── -->
+    <section class="how-section glass-card" aria-label="How it works">
+      <h2 class="how-title">How FakeShield Works</h2>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <div class="step-content">
+            <strong>Text Encoding</strong>
+            <p>Your news is encoded into a 384-dimension vector using <code>all-MiniLM-L6-v2</code>.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">02</div>
+          <div class="step-content">
+            <strong>Semantic Comparison</strong>
+            <p>Cosine similarity is computed against 60 trusted articles from TOI, HT & Tribune.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">03</div>
+          <div class="step-content">
+            <strong>Verdict Generation</strong>
+            <p>Similarity &gt; 0.85 → Real · 0.6–0.85 → Suspicious · &lt; 0.6 → Fake</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── Footer ─────────────────────────────────────────────────────────── -->
+  <footer class="footer">
+    <p>FakeShield · Built with Sentence Transformers · No labeled data used</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

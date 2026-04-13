@@ -1,0 +1,9 @@
+flask
+flask-cors
+sentence-transformers
+pandas
+scikit-learn
+numpy
+torch
+feedparser
+requests
